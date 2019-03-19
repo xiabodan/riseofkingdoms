@@ -1,83 +1,53 @@
 #include <iostream>
+#include <map>
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/imgproc/types_c.h>
 
+#include "ObjectMatch.h"
+
 using namespace std;
 using namespace cv;
 
 #pragma warning(disable:4996)
+typedef std::pair<std::string, std::string> TStrStrPair;
 
-// 定义全局变量
-Mat srcImage, templateImage, dstImage;
-const int trackbar_method_maxValue = 5;
-int trackbar_method;
+int main() {
+	map<string, string> matchs;
+	matchs.insert(TStrStrPair("img/_4_2.png", "img/1.png"));
+	//matchs.insert(TStrStrPair("img/_1_1.png", "img/1.png"));
+	//matchs.insert(TStrStrPair("img/_2_1.png", "img/2.png"));
+	//matchs.insert(TStrStrPair("img/_3_1.png", "img/3.png"));
+	//matchs.insert(TStrStrPair("img/_3_2.png", "img/3.png"));
+	//matchs.insert(TStrStrPair("img/_3_3.png", "img/3.png"));
+	//matchs.insert(TStrStrPair("img/_3_4.png", "img/3.png"));
+	//matchs.insert(TStrStrPair("img/_3_5.png", "img/3.png"));
+	//matchs.insert(TStrStrPair("img/_3_6.png", "img/3.png"));
+	//matchs.insert(TStrStrPair("img/_3_7.png", "img/3.png"));
+	//matchs.insert(TStrStrPair("img/_3_8.png", "img/3.png"));
+	//matchs.insert(TStrStrPair("img/_4_1.png", "img/4.png"));
+	//matchs.insert(TStrStrPair("img/_4_2.png", "img/4.png"));
+	//matchs.insert(TStrStrPair("img/_5_1.png", "img/5.png"));
+	//matchs.insert(TStrStrPair("img/_5_2.png", "img/5.png"));
+	//matchs.insert(TStrStrPair("img/_6_1.png", "img/6.png"));
+	//matchs.insert(TStrStrPair("img/_7_1.png", "img/7.png"));
+	//matchs.insert(TStrStrPair("img/_8_1.png", "img/8.png"));
+	//matchs.insert(TStrStrPair("img/_9_1.png", "img/9.png"));
 
-// 定义回调函数
-void method(int, void*);
+	std::map<string, string>::iterator it = matchs.begin();
+	int i = 1;
+	for (it = matchs.begin(); it != matchs.end(); ++it) {
+		cout << "match " << it->first << " " + it->second << endl;
+		ObjectMatch* objectMatch = new ObjectMatch(it->second, it->first);
+		Mat match = objectMatch->match();
 
-int main()
-{
-	srcImage = imread("1.png");
-	templateImage = imread("_1_1.png");
-
-	// 判断文件是否加载成功
-	if (srcImage.empty() || templateImage.empty()) 
-	{
-		cout << "图像加载失败!" << endl;
-		return -1;
+		char namewind[128];
+		sprintf(namewind, "match %d", i++);
+		namedWindow(namewind, WINDOW_AUTOSIZE);
+		imshow(namewind, match);
 	}
-	else
-		cout << "图像加载成功..." << endl << endl;
-
-	namedWindow("原图像", WINDOW_AUTOSIZE);
-	namedWindow("模板图像", WINDOW_AUTOSIZE);
-	imshow("原图像", srcImage);
-	imshow("模板图像", templateImage);
-
-	// 定义轨迹条参数
-	trackbar_method = 1;
-	char mathodName[50];
-	namedWindow("匹配图像", WINDOW_AUTOSIZE);
-	sprintf(mathodName, "匹配方式%d\n 0:SQDIFF\n 1:SQDIFF_NORMED\n 2:TM_CCORR\n 3:TM_CCORR_NORMEND\n 4:TM_COEFF\n 5:TM_COEFF_NORMED", trackbar_method_maxValue);
-	createTrackbar(mathodName, "匹配图像", &trackbar_method, trackbar_method_maxValue, method);
-	method(trackbar_method, 0);
-
 	waitKey(0);
 
 	return 0;
-}
-
-void method(int, void*)
-{
-	Mat display;
-	srcImage.copyTo(display);
-	// 创建输出矩阵
-	int dstImage_rows = srcImage.rows - templateImage.rows + 1;
-	int dstImage_cols = srcImage.cols - templateImage.cols + 1;
-	dstImage.create(dstImage_rows, dstImage_cols, srcImage.type());
-
-	matchTemplate(srcImage, templateImage, dstImage, trackbar_method);   //模板匹配
-	normalize(dstImage, dstImage, 0, 1, NORM_MINMAX);       //归一化处理
-
-	// 通过minMaxLoc定位最佳匹配位置
-	double minValue, maxValue;
-	Point minLocation, maxLocation;
-	Point matchLocation;
-	minMaxLoc(dstImage, &minValue, &maxValue, &minLocation, &maxLocation, Mat());
-
-	// 对于方法SQDIFF和SQDIFF_NORMED两种方法来讲，越小的值就有着更高的匹配结果
-	// 而其余的方法则是数值越大匹配效果越好
-	if (trackbar_method == CV_TM_SQDIFF || trackbar_method == CV_TM_SQDIFF_NORMED)
-	{
-		matchLocation = minLocation;
-	}
-	else
-	{
-		matchLocation = maxLocation;
-	}
-	rectangle(display, matchLocation, Point(matchLocation.x + templateImage.cols, matchLocation.y + templateImage.rows), Scalar(0, 0, 255));
-
-	imshow("匹配图像", display);
 }
