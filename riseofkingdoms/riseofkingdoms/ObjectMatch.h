@@ -16,6 +16,13 @@ class ObjectMatch {
 	Mat dstImage;
 
 	static const int trackbar_method_maxValue = 5;
+
+	//CV_TM_SQDIFF = 0,
+	//CV_TM_SQDIFF_NORMED = 1,
+	//CV_TM_CCORR = 2,
+	//CV_TM_CCORR_NORMED = 3,
+	//CV_TM_CCOEFF = 4,
+	//CV_TM_CCOEFF_NORMED = 5
 	int trackbar_method;
 
 public:
@@ -23,7 +30,11 @@ public:
 	ObjectMatch(const String& src, const String& tempate) {
 		srcImage = imread(src);
 		templateImage = imread(tempate);
-		trackbar_method = 1;
+		trackbar_method = CV_TM_CCOEFF_NORMED;
+	}
+
+	void setMethod(int method) {
+		trackbar_method = method;
 	}
 
 	Mat match() {
@@ -32,7 +43,7 @@ public:
 			cout << "Í¼Ïñ¼ÓÔØÊ§°Ü!" << endl;
 			return Mat();
 		} else { 
-			cout << "Í¼Ïñ¼ÓÔØ³É¹¦..." << endl << endl;
+			cout << "Í¼Ïñ¼ÓÔØ³É¹¦..." << endl;
 		}
 
 		// namedWindow("Ô­Í¼Ïñ", WINDOW_AUTOSIZE);
@@ -45,12 +56,12 @@ public:
 		// namedWindow("Æ¥ÅäÍ¼Ïñ", WINDOW_AUTOSIZE);
 		// sprintf(mathodName, "Æ¥Åä·½Ê½%d\n 0:SQDIFF\n 1:SQDIFF_NORMED\n 2:TM_CCORR\n 3:TM_CCORR_NORMEND\n 4:TM_COEFF\n 5:TM_COEFF_NORMED", trackbar_method_maxValue);
 		// createTrackbar(mathodName, "Æ¥ÅäÍ¼Ïñ", &trackbar_method, trackbar_method_maxValue, method);
-		return method(trackbar_method, 0);
+		return match(trackbar_method, 0);
 	}
 
 private:
 
-	Mat method(int, void*) {
+	Mat match(int, void*) {
 		cout << "trackbar_method " << trackbar_method  << " trackbar_method_maxValue " << trackbar_method_maxValue  << endl;
 		Mat display;
 		srcImage.copyTo(display);
