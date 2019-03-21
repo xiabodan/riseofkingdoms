@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
                 File file = new File(newPath);
                 file.mkdirs();  // 如果文件夹不存在，则递归
                 for (String fileName : fileNames) {
-                    copyFilesFassets(context,oldPath + "/" + fileName,newPath+"/"+fileName);
+                    copyFilesFassets(context,oldPath + "/" + fileName,newPath + "/" + fileName);
                 }
             } else {  // 如果是文件
                 InputStream is = context.getAssets().open(oldPath);

@@ -46,6 +46,8 @@ public:
 			cout << "Í¼Ïñ¼ÓÔØ³É¹¦..." << endl;
 		}
 
+		pyrDown(templateImage, templateImage, Size(templateImage.cols * 0.5, templateImage.rows * 0.5));
+		pyrDown(srcImage, srcImage, Size(srcImage.cols * 0.5, srcImage.rows * 0.5));
 		// namedWindow("Ô­Í¼Ïñ", WINDOW_AUTOSIZE);
 		// namedWindow("Ä£°åÍ¼Ïñ", WINDOW_AUTOSIZE);
 		// imshow("Ô­Í¼Ïñ", srcImage);
