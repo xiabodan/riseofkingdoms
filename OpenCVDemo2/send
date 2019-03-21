@@ -1,0 +1,12 @@
+sendevent /dev/input/event2 3 47 00000000
+sendevent /dev/input/event2 3 57 00003349
+sendevent /dev/input/event2 3 53 900
+sendevent /dev/input/event2 3 54 1799
+sendevent /dev/input/event2 3 58 56
+sendevent /dev/input/event2 0 0 00000000
+sendevent /dev/input/event2 3 58 61
+sendevent /dev/input/event2 0 0 00000000
+sendevent /dev/input/event2 3 58 58
+sendevent /dev/input/event2 0 0 00000000
+sendevent /dev/input/event2 3 57 4294967295
+sendevent /dev/input/event2 0 0 00000000
