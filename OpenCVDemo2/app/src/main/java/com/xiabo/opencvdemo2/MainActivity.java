@@ -2,12 +2,21 @@ package com.xiabo.opencvdemo2;
 
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.SurfaceView;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
+
+import com.stericson.RootShell.exceptions.RootDeniedException;
+import com.stericson.RootShell.execution.Command;
+import com.stericson.RootTools.RootTools;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
@@ -23,9 +32,25 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 
 public class MainActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
     private static final String TAG = MainActivity.class.getSimpleName();
+
+    HandlerThread handlerThread;
+    Handler mHandler;
+    private boolean isProcessBusy = false;
+
+    class MyHandler extends Handler {
+        MyHandler(Looper looper) {
+            super(looper);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+        }
+    }
 
     // Used to load the 'native-lib' library on application startup.
     static {
@@ -46,6 +71,10 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         javaCameraView = (JavaCameraView) findViewById(R.id.javaCameraView);
         javaCameraView.setVisibility(SurfaceView.VISIBLE);
         javaCameraView.setCvCameraViewListener(this);
+
+        handlerThread = new HandlerThread("ImageProcess");
+        handlerThread.start();
+        mHandler = new MyHandler(handlerThread.getLooper());
     }
 
     /**
@@ -60,7 +89,8 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         public void onManagerConnected(int status) {
             switch (status) {
                 case LoaderCallbackInterface.SUCCESS: {
-                    javaCameraView.enableView();
+                    // TODO
+                    // javaCameraView.enableView();  // 不显示摄像头
                 }
                 break;
                 default:
@@ -77,16 +107,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
             javaCameraView.disableView();
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (!OpenCVLoader.initDebug()) {
-            Log.i(TAG, "need load opencv manager");
-            OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION, this, baseLoaderCallback);
-        } else {
-            baseLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
-        }
-
+    private void process() {
         String path = getFilesDir().getAbsolutePath();
         copyFilesFassets(this, "img", path);
         Map matchs = Template.getMatchs();
@@ -94,8 +115,9 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         while (iterator.hasNext()) {
             Map.Entry<String, String> entry = (Map.Entry)iterator.next();
             Log.i(TAG, "matching " + entry.getKey() + " " + entry.getValue());
-            String srcPath =  getFilesDir().getAbsolutePath() + File.separator + entry.getValue();
-            String templatePath =  getFilesDir().getAbsolutePath() + File.separator + entry.getKey();
+            String file = getFilesDir().getAbsolutePath();
+            String srcPath =  file + File.separator + entry.getValue();
+            String templatePath =  file + File.separator + entry.getKey();
             try {
                 ObjectMatch objectMatch = new ObjectMatch(srcPath, templatePath);
                 long start = System.currentTimeMillis();
@@ -111,8 +133,67 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         }
     }
 
+    public void startImageProcess(View view) {
+        if (isProcessBusy) {
+            Log.i(TAG, "process is busy");
+            return;
+        }
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                isProcessBusy = true;
+                Log.i(TAG, "process ...");
+                process();
+                isProcessBusy = false;
+            }
+        });
+    }
+
+    public void sendEvent(View view) {
+        mHandler.postAtTime(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Log.i(TAG, "sendEvent");
+//                    Runtime.getRuntime().exec("send");
+//                    Runtime.getRuntime().exec("ls");
+
+                    Vevent cmd = new Vevent();
+                    cmd.executeCommand("ls");
+
+                    Pixel pixel = new Pixel();
+                    pixel.touch();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (RootDeniedException e) {
+                    e.printStackTrace();
+                } catch (TimeoutException e){
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, 1000);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (!OpenCVLoader.initDebug()) {
+            Log.i(TAG, "need load opencv manager");
+            OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION, this, baseLoaderCallback);
+        } else {
+            baseLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
+        }
+    }
+
     public void copyFilesFassets(Context context, String oldPath, String newPath) {
         try {
+            String filedir = getFilesDir().getAbsolutePath();
+            File copyed = new File(filedir + File.pathSeparator + "1.png");
+            if (copyed.exists()) {
+                return;
+            }
             String fileNames[] = context.getAssets().list(oldPath);  // 获取assets目录下的所有文件及目录名
             if (fileNames.length > 0) {  // 如果是目录
                 File file = new File(newPath);

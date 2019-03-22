@@ -5,6 +5,7 @@ import android.util.Log;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.Size;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.imgcodecs.Imgcodecs;
@@ -80,6 +81,10 @@ class ObjectMatch {
             Log.e(TAG, "image load fail");
             return null;
         }
+
+        Imgproc.pyrDown(templateImage, templateImage, new Size(templateImage.width() * 0.5, templateImage.height() * 0.5));
+        Imgproc.pyrDown(srcImage, srcImage, new Size(srcImage.width() * 0.5, srcImage.height() * 0.5));
+
         Log.i(TAG, "image load success...");
         return run(outFile);
     }
