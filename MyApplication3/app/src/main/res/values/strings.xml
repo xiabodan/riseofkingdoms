@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">TestCase</string>
+    <string name="title_activity_main4">Main4Activity</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_main5">Main5Activity</string>
+    <string name="title_activity_main6">Main6Activity</string>
+    <string name="title_activity_main7">Main7Activity</string>
+    <string name="title_activity_main9">Main9Activity</string>
+    <string name="title_activity_camera">CameraActivity</string>
+    <string name="title_activity_editor">EditorActivity</string>
+    <string name="title_activity_share">ShareActivity</string>
+	<string name="biometricprompt_tip">Tip</string>
+    <string name="biometricprompt_fingerprint_verification">Fingerprint Verification</string>
+    <string name="biometricprompt_verify_fingerprint">Please verify your fingerprints.</string>
+    <string name="biometricprompt_verify_usepwd">Enter password</string>
+    <string name="biometricprompt_verify_success">Verification success</string>
+    <string name="biometricprompt_verify_failed">Verification failure</string>
+    <string name="biometricprompt_verify_error_no_hardware">This device does not support fingerprint recognition. </string>
+    <string name="biometricprompt_cancel">Cancel</string>
+    <string name="fingerprint_recognition">指纹识别</string>
+    <string name="fingerprint_cancel">取消指纹识别</string>
+    <string name="fingerprint_usepwd">密码验证</string>
+    <string name="biometricprompt_finger_add">请先添加指纹</string>
+    <string name="biometricprompt_finger_add_confirm">确认添加</string>
+    <string name="biometricprompt_finger_hw_unavailable">指纹模块不可用</string>
+</resources>
